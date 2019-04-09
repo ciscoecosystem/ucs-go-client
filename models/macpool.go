@@ -54,8 +54,8 @@ func (macPoolPool *MacPoolPool) ToMap() (map[string]string, error) {
 
 }
 
-func MacPoolPoolFromDoc(doc *etree.Document) *MacPoolPool {
-	element, err := GetMoElement(doc, MacPoolPoolClassName)
+func MacPoolPoolFromDoc(doc *etree.Document, rootClass string) *MacPoolPool {
+	element, err := GetMoElement(doc, rootClass, MacPoolPoolClassName)
 	if err != nil {
 		return nil
 	}

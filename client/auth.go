@@ -28,7 +28,9 @@ func (client *Client) InjectAuthenticationHeader(body *etree.Document) (*etree.D
 	} else {
 		return body, fmt.Errorf("Please provide password")
 	}
-	body.CreateAttr("cookie", client.AuthToken.Token)
+	childs := body.ChildElements()[0]
+	childs.CreateAttr("cookie", client.AuthToken.Token)
+	body.ChildElements()[0].CreateAttr("cookie", "testing")
 	return body, nil
 }
 

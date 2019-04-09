@@ -114,7 +114,7 @@ func (c *Client) useInsecureHTTPClient() *http.Transport {
 
 }
 
-func getClient(clientUrl, username string, options ...Option) *Client {
+func GetClient(clientUrl, username string, options ...Option) *Client {
 	if clientImpl == nil {
 		clientImpl = initClient(clientUrl, username, options...)
 	}

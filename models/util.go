@@ -6,8 +6,8 @@ import (
 	"github.com/beevik/etree"
 )
 
-func GetMoElement(doc *etree.Document, className string) (*etree.Element, error) {
-	rootEle := doc.SelectElement("configConfMo")
+func GetMoElement(doc *etree.Document, rootClass, className string) (*etree.Element, error) {
+	rootEle := doc.SelectElement(rootClass)
 	if rootEle != nil {
 		return nil, fmt.Errorf("Unable to load configConfMo root element")
 	}
