@@ -152,13 +152,14 @@ func (c *Client) Do(req *http.Request) (*etree.Document, *http.Response, error) 
 		return nil, nil, err
 	}
 	defer resp.Body.Close()
-
 	fmt.Printf("\nHTTP Request: %s %s \n", req.Method, req.URL.String())
 	fmt.Printf("\nHTTP Response: %d %s \n", resp.StatusCode, resp.Status)
 
 	doc := etree.NewDocument()
 	_, err = doc.ReadFrom(resp.Body)
 
+	respStr, _ := doc.WriteToString()
+	fmt.Println("\n\n\n ****** %s \n\n\n", respStr)
 	if err != nil {
 		fmt.Println("Error occurred.")
 		return nil, resp, err

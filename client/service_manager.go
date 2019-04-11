@@ -54,10 +54,21 @@ func (c *Client) Delete(obj models.Model) (*etree.Document, error) {
 
 	respDoc, _, err := c.Do(req)
 
-	return nil, CheckForErrors(respDoc, "configConfMo")
+	return respDoc, CheckForErrors(respDoc, "configConfMo")
 
 }
+func (c *Client) DeleteByDn(dn, klass string) error {
+	basAttr := &models.BaseAttributes{
+		DistinguishedName: dn,
+		ClassName:         klass,
+		Status:            "deleted",
+	}
 
+	doc, err := c.Delete(basAttr)
+	strText, _ := doc.WriteToString()
+	fmt.Printf("\n\n ***** Delete By dn %s", strText)
+	return err
+}
 func (c *Client) PrepareModel(obj models.Model, rootClass, subClass, confDn, status string) (*etree.Document, string, error) {
 	var moEle *etree.Element
 	var classname string
@@ -103,14 +114,15 @@ func CreateHierarchy(rootClass, subClass, confDn string, moEle *etree.Element) *
 
 func CheckForErrors(doc *etree.Document, rootClass string) error {
 	rootEle := doc.SelectElement(rootClass)
-	if rootEle != nil {
+	if rootEle == nil {
 		return fmt.Errorf("Unable to load %s element", rootClass)
 	}
 
 	errCodeAttr := rootEle.SelectAttr("errorCode")
 
 	if errCodeAttr != nil {
-		return fmt.Errorf("Error occured %s Reason %s", errCodeAttr.Key, errCodeAttr.Value)
+
+		return fmt.Errorf("Error occured Error Code %s Reason %s", errCodeAttr.Value, rootEle.SelectAttr("errorDescr").Value)
 	}
 
 	return nil

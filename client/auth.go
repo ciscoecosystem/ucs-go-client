@@ -24,13 +24,11 @@ func (client *Client) InjectAuthenticationHeader(body *etree.Document) (*etree.D
 		} else if !client.AuthToken.IsValid() {
 			client.refreshToken(client.AuthToken.Token)
 		}
-		//return req, nil
 	} else {
 		return body, fmt.Errorf("Please provide password")
 	}
-	childs := body.ChildElements()[0]
-	childs.CreateAttr("cookie", client.AuthToken.Token)
-	body.ChildElements()[0].CreateAttr("cookie", "testing")
+
+	body.ChildElements()[0].CreateAttr("cookie", client.AuthToken.Token)
 	return body, nil
 }
 
@@ -71,8 +69,20 @@ func (c *Client) Authenticate() error {
 		c.AuthToken = &Auth{}
 	}
 	c.AuthToken.offset = 2
-	c.AuthToken.Token = doc.SelectAttrValue("outCookie", "")
-	c.AuthToken.RefreshPeriod, err = StrtoInt(doc.SelectAttrValue("outRefreshPeriod", "0"), 10, 64)
+
+	children := doc.ChildElements()
+	var logInEle *etree.Element
+	for _, ele := range children {
+		if ele.Tag == "aaaLogin" {
+			logInEle = ele
+			break
+		}
+	}
+	if logInEle == nil {
+		return fmt.Errorf("Unable to load cookie")
+	}
+	c.AuthToken.Token = logInEle.SelectAttrValue("outCookie", "")
+	c.AuthToken.RefreshPeriod, err = StrtoInt(logInEle.SelectAttrValue("outRefreshPeriod", "0"), 10, 64)
 	if err != nil {
 		fmt.Errorf("Error parsing Refresh period.")
 	}
@@ -97,8 +107,19 @@ func (c *Client) refreshToken(oldtoken string) error {
 	if err != nil {
 		return err
 	}
-	c.AuthToken.Token = doc.SelectAttrValue("outCookie", "")
-	c.AuthToken.RefreshPeriod, err = StrtoInt(doc.SelectAttrValue("outRefreshPeriod", "0"), 10, 64)
+	children := doc.ChildElements()
+	var logInEle *etree.Element
+	for _, ele := range children {
+		if ele.Tag == "aaaRefresh" {
+			logInEle = ele
+			break
+		}
+	}
+	if logInEle == nil {
+		return fmt.Errorf("Unable to load cookie")
+	}
+	c.AuthToken.Token = logInEle.SelectAttrValue("outCookie", "")
+	c.AuthToken.RefreshPeriod, err = StrtoInt(logInEle.SelectAttrValue("outRefreshPeriod", "0"), 10, 64)
 	if err != nil {
 		fmt.Errorf("Error parsing Refresh period.")
 	}
