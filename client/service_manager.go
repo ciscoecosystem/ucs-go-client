@@ -2,6 +2,7 @@ package client
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/beevik/etree"
 	"github.com/ciscoecosystem/ucs-go-client/models"
@@ -21,6 +22,7 @@ func (c *Client) Save(obj models.Model) error {
 	respDoc, _, err := c.Do(req)
 
 	strDoc, err := respDoc.WriteToString()
+	log.Printf("[DEBUG] Response %s", strDoc)
 	fmt.Println("\n\n\n*********** response %s **********\n\n\n", strDoc)
 	return CheckForErrors(respDoc, "configConfMo")
 
